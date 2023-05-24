@@ -5,7 +5,7 @@ return function(env)
 		local f = x / (env.w - 1)
 		for y = 0, env.h - 1 do
 			local p = env.imagePointer[x + y * env.w]
-			local brightness = (p.r * 0.2126 + p.g * 0.7152 + p.b * 0.0722) / 255
+			local brightness = p.r * 0.2126 + p.g * 0.7152 + p.b * 0.0722
 			left = left + brightness * (1 - f)
 			right = right + brightness * f
 		end
@@ -22,9 +22,9 @@ return function(env)
 		for y = 0, env.h - 1 do
 			local adaption = (right * (1 - f) + left * f - 1) * 1.5 + 1
 			local p = env.imagePointer[x + y * env.w]
-			p.r = math.min(255, math.max(0, p.r * adaption + 0.5))
-			p.g = math.min(255, math.max(0, p.g * adaption + 0.5))
-			p.b = math.min(255, math.max(0, p.b * adaption + 0.5))
+			p.r = math.min(1, math.max(0, p.r * adaption))
+			p.g = math.min(1, math.max(0, p.g * adaption))
+			p.b = math.min(1, math.max(0, p.b * adaption))
 		end
 	end
 end

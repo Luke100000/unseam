@@ -6,7 +6,7 @@ local progress = require("modules/progress")
 return function(env)
 	--construct error map
 	local errorByteData = love.data.newByteData(ffi.sizeof("float") * env.w * env.h)
-	local error = ffi.cast('float*', errorByteData:getFFIPointer())
+	local error = ffi.cast("float*", errorByteData:getFFIPointer())
 	local focusFactor = 0.01
 	for x = 0, env.w - 1 do
 		for y = 0, env.h - 1 do
@@ -14,18 +14,18 @@ return function(env)
 			local b = env.imagePointer[((x + env.hw) % env.w) + y * env.w]
 			local gradient = 1 - math.abs(math.sin(x / env.w * math.pi * 2))
 			local focus = math.abs(x / env.w * 2 - 1)
-			local e = ((a.r - b.r) / 255) ^ 2 + ((a.g - b.g) / 255) ^ 2 + ((a.b - b.b) / 255) ^ 2
+			local e = (a.r - b.r) ^ 2 + (a.g - b.g) ^ 2 + (a.b - b.b) ^ 2
 			error[x + y * env.w] = e + gradient ^ 32 + focus * focusFactor + 0.00001
 		end
 	end
 
 	--loss map
 	local bestByteData = love.data.newByteData(ffi.sizeof("float") * env.w * env.h)
-	local best = ffi.cast('float*', bestByteData:getFFIPointer())
+	local best = ffi.cast("float*", bestByteData:getFFIPointer())
 
 	--source and sink map
 	env.sourceSinkByteData = love.data.newByteData(ffi.sizeof("float") * env.w * env.h)
-	local sourceSink = ffi.cast('float*', env.sourceSinkByteData:getFFIPointer())
+	local sourceSink = ffi.cast("float*", env.sourceSinkByteData:getFFIPointer())
 	for x = 0, env.w - 1 do
 		for y = 0, env.h - 1 do
 			sourceSink[x + y * env.w] = 0

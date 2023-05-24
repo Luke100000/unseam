@@ -15,21 +15,23 @@ local shaders = {
 	preMerge = love.graphics.newShader("shaders/preMerge.glsl"),
 }
 
+local upcastImage = require("modules/upcastImage")
 local generateMask = require("modules/generateMask")
 local blurMask = require("modules/blurMask")
 local poissonBlend = require("modules/poissonBlend")
 local shiftImage = require("modules/shiftImage")
 local brightnessCorrection = require("modules/brightnessCorrection")
+local downCast = require("modules/downCast")
 
 local function process(settings)
 	local env = { shaders = shaders, settings = settings }
 	env.imageData = love.image.newImageData(settings.path)
-	env.imagePointer = ffi.cast('pixel_t*', env.imageData:getFFIPointer())
+	env.imagePointer = ffi.cast("pixel_t*", env.imageData:getFFIPointer())
 	env.w, env.h = env.imageData:getDimensions()
 	env.hw = math.floor(env.w / 2)
 
-	--temporary canvas
-	env.canvas = love.graphics.newCanvas(env.w, env.h)
+	--upcast to float to minimize loss
+	upcastImage(env)
 
 	--create shifted source image
 	brightnessCorrection(env)
@@ -48,8 +50,11 @@ local function process(settings)
 	--poisson blend
 	poissonBlend(env)
 
+	--downcast to 8bit
+	downCast(env)
+
 	--save
-	env.canvas:newImageData():encode("png", "output.png")
+	env.finalImageData:encode("png", "output.png")
 end
 
 process({

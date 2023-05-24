@@ -6,7 +6,9 @@ local mesh = love.graphics.newMesh({
 })
 
 return function(env)
-	love.graphics.setCanvas(env.canvas)
+	env.shiftedImage = love.graphics.newCanvas(env.w, env.h, { format = "rgba32f" })
+
+	love.graphics.setCanvas(env.shiftedImage)
 	env.image:setWrap("repeat")
 	mesh:setTexture(env.image)
 	love.graphics.draw(mesh, 0, 0, 0, env.w, env.h)
