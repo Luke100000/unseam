@@ -19,13 +19,12 @@ local generateMask = require("modules/generateMask")
 local blurMask = require("modules/blurMask")
 local poissonBlend = require("modules/poissonBlend")
 local shiftImage = require("modules/shiftImage")
-local brightnessCorrection = require("modules/shiftImage")
+local brightnessCorrection = require("modules/brightnessCorrection")
 
 local function process(settings)
 	local env = { shaders = shaders, settings = settings }
 	env.imageData = love.image.newImageData(settings.path)
 	env.imagePointer = ffi.cast('pixel_t*', env.imageData:getFFIPointer())
-	env.image = love.graphics.newImage(env.imageData)
 	env.w, env.h = env.imageData:getDimensions()
 	env.hw = math.floor(env.w / 2)
 
@@ -34,6 +33,8 @@ local function process(settings)
 
 	--create shifted source image
 	brightnessCorrection(env)
+
+	env.image = love.graphics.newImage(env.imageData)
 
 	--create shifted source image
 	shiftImage(env)
