@@ -1,23 +1,23 @@
 local progress = require("modules/progress")
 
 return function(env)
-	local canvas1 = love.graphics.newCanvas(env.w, env.h, { format = "r32f" })
-	local canvas2 = love.graphics.newCanvas(env.w, env.h, { format = "r32f" })
+	local canvas1 = love.graphics.newCanvas(env.intersect, env.h, { format = "r32f" })
+	local canvas2 = love.graphics.newCanvas(env.intersect, env.h, { format = "r32f" })
 
 	--create target image
 	love.graphics.setCanvas(canvas1)
 	love.graphics.setBlendMode("replace")
-	local rawMask = love.graphics.newImage(love.image.newImageData(env.w, env.h, "r32f", env.sourceSinkByteData))
+	local rawMask = love.graphics.newImage(love.image.newImageData(env.intersect, env.h, "r32f", env.sourceSinkByteData))
 	love.graphics.draw(rawMask)
 	love.graphics.setCanvas()
 
-	for epoch = math.ceil(env.settings.blurStrength * env.w), 1, -1 do
+	for epoch = math.ceil(env.settings.blurStrength * env.intersect), 1, -1 do
 		local size = math.sqrt(epoch)
 		for i = 1, 2 do
 			love.graphics.push("all")
 			love.graphics.setCanvas(canvas2)
 			love.graphics.setShader(env.shaders.blur)
-			env.shaders.blur:send("dir", i % 2 == 0 and { size / env.w, 0 } or { 0, size / env.h })
+			env.shaders.blur:send("dir", i % 2 == 0 and { size / env.intersect, 0 } or { 0, size / env.h })
 			love.graphics.setBlendMode("replace")
 			love.graphics.draw(canvas1)
 			love.graphics.setShader()

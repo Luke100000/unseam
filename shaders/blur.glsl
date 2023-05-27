@@ -17,9 +17,15 @@ vec4 effect(vec4 color, Image texture, vec2 tc, vec2 sc) {
     sum += Texel(texture, tc + dir * 4.0).r * 0.011902;
     sum += Texel(texture, tc + dir * 5.0).r * 0.002166;
 
-    float minSum = pow(1.0 - abs(tc.x - 0.5), 16.0);
+    float border = 1.0 / love_ScreenSize.x;
 
-    sum = max(minSum, sum);
+    if (tc.x < 0.5) {
+        sum = max(sum, pow(1.0 + border - tc.x, 16.0));
+    } else {
+        sum = min(sum, 1.0 - pow(tc.x + border, 16.0));
+    }
+
+    sum = clamp(sum, 0.0, 1.0);
 
     return vec4(sum, sum, sum, 1.0);
 }

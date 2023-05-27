@@ -19,36 +19,42 @@ local upcastImage = require("modules/upcastImage")
 local generateMask = require("modules/generateMask")
 local blurMask = require("modules/blurMask")
 local poissonBlend = require("modules/poissonBlend")
-local shiftImage = require("modules/shiftImage")
+local createWorkspace = require("modules/createWorkspace")
 local brightnessCorrection = require("modules/brightnessCorrection")
 local downCast = require("modules/downCast")
+local combine = require("modules/combine")
+local flip = require("modules/flip")
 
 local function process(settings)
 	local env = { shaders = shaders, settings = settings }
 	env.imageData = love.image.newImageData(settings.path)
-	env.imagePointer = ffi.cast("pixel_t*", env.imageData:getFFIPointer())
 	env.w, env.h = env.imageData:getDimensions()
-	env.hw = math.floor(env.w / 2)
 
 	--upcast to float to minimize loss
 	upcastImage(env)
 
-	--create shifted source image
-	brightnessCorrection(env)
+	for dimension = 1, 2 do
+		--create shifted source image
+		brightnessCorrection(env)
 
-	env.image = love.graphics.newImage(env.imageData)
+		--create shifted source image
+		createWorkspace(env)
 
-	--create shifted source image
-	shiftImage(env)
+		--generate blend mask
+		generateMask(env)
 
-	--generate blend mask
-	generateMask(env)
+		--blur blend mask
+		blurMask(env)
 
-	--blur blend mask
-	blurMask(env)
+		--poisson blend
+		poissonBlend(env)
 
-	--poisson blend
-	poissonBlend(env)
+		--combine blend result with image
+		combine(env)
+
+		--flip
+		flip(env)
+	end
 
 	--downcast to 8bit
 	downCast(env)
@@ -59,6 +65,8 @@ end
 
 process({
 	path = "examples/1.jpg",
-	blurStrength = 0.01,
+	blurStrength = 0.025,
+	overlap = 0.125,
+	poisson = 30,
 })
 os.exit()

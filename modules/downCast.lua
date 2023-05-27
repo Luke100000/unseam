@@ -1,11 +1,9 @@
 local ffi = require("ffi")
 
 return function(env)
-	local imageData = env.finalImage:newImageData()
-	local imagePointer = ffi.cast("float_pixel_t*", imageData:getFFIPointer())
-
 	env.finalImageData = love.image.newImageData(env.w, env.h)
 	local finalImagePointer = ffi.cast("pixel_t*", env.finalImageData:getFFIPointer())
+	local imagePointer = ffi.cast("float_pixel_t*", env.imageData:getFFIPointer())
 
 	--Atkinson diffusion
 	local function addError(x, y, er, eg, eb)
