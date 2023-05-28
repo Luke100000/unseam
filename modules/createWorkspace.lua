@@ -1,33 +1,33 @@
 local ffi = require("ffi")
 
-local function getNextResolution(env, w)
-	local minOverlap = math.ceil(w * env.settings.minOverlap)
-	local nextResolution = 2 ^ math.floor(math.log(w, 2))
-	if w - nextResolution < minOverlap then
-		nextResolution = nextResolution / 2
+local function getTargetWidth(env, w)
+	if env.settings.scaleToNextN2 then
+		local minOverlap = math.ceil(w * env.settings.minOverlap)
+		local nextResolution = 2 ^ math.floor(math.log(w, 2))
+		if w - nextResolution < minOverlap then
+			nextResolution = nextResolution / 2
+		end
+		return nextResolution
+	else
+		local intersect = math.ceil(env.settings.overlap * w)
+		return w - intersect
 	end
-	return nextResolution
 end
 
 return function(env)
-	if env.settings.scaleToNextN2 then
-		--Find the best target resolution
-		local nextResolution = getNextResolution(env, env.w)
+	local targetWidth = getTargetWidth(env, env.w)
 
-		--Crop to make it a square
-		if env.settings.outputSquare and env.dimension == 1 then
-			nextResolution = math.min(nextResolution, getNextResolution(env, env.h))
-		end
-
-		--Crop it respectively
-		local maxOverlap = math.floor(env.w / 2)
-		env.intersect = math.min(maxOverlap, env.w - nextResolution)
-		env.crop = math.max(0, (env.w - nextResolution) - env.intersect)
-	else
-		env.intersect = math.ceil(env.settings.overlap * env.w)
-		env.crop = 0
+	--Crop to make it a square
+	if env.settings.outputSquare and env.dimension == 1 then
+		targetWidth = math.min(targetWidth, getTargetWidth(env, env.h))
 	end
 
+	--Crop it respectively
+	local maxOverlap = math.floor(env.w / 2)
+	env.intersect = math.min(maxOverlap, env.w - targetWidth)
+	env.crop = math.max(0, (env.w - targetWidth) - env.intersect)
+
+	--Create workspace canvases
 	env.rightImage = love.graphics.newCanvas(env.intersect, env.h, { format = "rgba32f" })
 	env.leftImage = love.graphics.newCanvas(env.intersect, env.h, { format = "rgba32f" })
 	env.finalCanvas = love.graphics.newCanvas(env.w - env.intersect - env.crop, env.h, { format = "rgba32f" })

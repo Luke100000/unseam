@@ -68,8 +68,8 @@ end
 process({
 	path = "examples/1.jpg",
 	blurStrength = 0.025,
-	scaleToNextN2 = true,
-	outputSquare = true,
+	scaleToNextN2 = false,
+	outputSquare = false,
 	minOverlap = 0.125,
 	overlap = 0.125,
 	poisson = 30,
