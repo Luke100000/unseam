@@ -27,9 +27,20 @@ local combine = require("modules/combine")
 local flip = require("modules/flip")
 local generateContrast = require("modules/generateContrast")
 
-local function process(settings)
+local function process(path, output, settings)
+	settings = settings or { }
+	settings.blurStrength = settings.blurStrength or 0.01
+	settings.dynamicBlur = settings.dynamicBlur or true
+	settings.scaleToNextN2 = settings.scaleToNextN2 or false
+	settings.outputSquare = settings.outputSquare or false
+	settings.minOverlap = settings.minOverlap or 0.125
+	settings.overlap = settings.overlap or 0.125
+	settings.poisson = settings.poisson or 30
+	settings.contrastResolution = settings.contrastResolution or 128
+
 	local env = { shaders = shaders, settings = settings }
-	env.imageData = love.image.newImageData(settings.path)
+	env.path = path
+	env.imageData = love.image.newImageData(path)
 	env.w, env.h = env.imageData:getDimensions()
 
 	--upcast to float to minimize loss
@@ -67,18 +78,22 @@ local function process(settings)
 	downCast(env)
 
 	--save
-	env.finalImageData:encode("png", "output.png")
+	env.finalImageData:encode("png", output)
 end
 
-process({
-	path = "examples/2.jpg",
-	blurStrength = 0.025,
-	dynamicBlur = true,
-	scaleToNextN2 = false,
-	outputSquare = false,
-	minOverlap = 0.125,
-	overlap = 0.125,
-	poisson = 30,
-	contrastResolution = 128,
-})
-os.exit()
+love.filesystem.createDirectory("output")
+
+function love.filedropped(file)
+	love.filesystem.write("temp", file:read())
+	process("temp", "image.png")
+	love.filesystem.remove("temp")
+	love.system.openURL(love.filesystem.getSaveDirectory())
+end
+
+function love.directorydropped(file)
+	love.filesystem.mount(file, "mount")
+	for _, s in ipairs(love.filesystem.getDirectoryItems("mount")) do
+		process("mount/" .. s, "output/" .. s .. ".png")
+	end
+	love.system.openURL(love.filesystem.getSaveDirectory() .. "/output")
+end
