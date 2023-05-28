@@ -34,6 +34,8 @@ local function process(settings)
 	upcastImage(env)
 
 	for dimension = 1, 2 do
+		env.dimension = dimension
+
 		--create shifted source image
 		brightnessCorrection(env)
 
@@ -66,6 +68,9 @@ end
 process({
 	path = "examples/1.jpg",
 	blurStrength = 0.025,
+	scaleToNextN2 = true,
+	outputSquare = true,
+	minOverlap = 0.125,
 	overlap = 0.125,
 	poisson = 30,
 })
