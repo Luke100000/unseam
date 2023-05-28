@@ -2,20 +2,25 @@
 
 uniform vec2 dir;
 
+uniform Image contrast;
+
 vec4 effect(vec4 color, Image texture, vec2 tc, vec2 sc) {
     float sum = Texel(texture, tc).r * 0.245484;
 
-    sum += Texel(texture, tc - dir * 5.0).r * 0.002166;
-    sum += Texel(texture, tc - dir * 4.0).r * 0.011902;
-    sum += Texel(texture, tc - dir * 3.0).r * 0.044758;
-    sum += Texel(texture, tc - dir * 2.0).r * 0.115233;
-    sum += Texel(texture, tc - dir).r * 0.203199;
+    float strength = Texel(contrast, tc).r;
+    vec2 d = dir * strength;
 
-    sum += Texel(texture, tc + dir).r * 0.203199;
-    sum += Texel(texture, tc + dir * 2.0).r * 0.115233;
-    sum += Texel(texture, tc + dir * 3.0).r * 0.044758;
-    sum += Texel(texture, tc + dir * 4.0).r * 0.011902;
-    sum += Texel(texture, tc + dir * 5.0).r * 0.002166;
+    sum += Texel(texture, tc - d * 5.0).r * 0.002166;
+    sum += Texel(texture, tc - d * 4.0).r * 0.011902;
+    sum += Texel(texture, tc - d * 3.0).r * 0.044758;
+    sum += Texel(texture, tc - d * 2.0).r * 0.115233;
+    sum += Texel(texture, tc - d).r * 0.203199;
+
+    sum += Texel(texture, tc + d).r * 0.203199;
+    sum += Texel(texture, tc + d * 2.0).r * 0.115233;
+    sum += Texel(texture, tc + d * 3.0).r * 0.044758;
+    sum += Texel(texture, tc + d * 4.0).r * 0.011902;
+    sum += Texel(texture, tc + d * 5.0).r * 0.002166;
 
     float border = 1.0 / love_ScreenSize.x;
 

@@ -11,12 +11,13 @@ return function(env)
 	love.graphics.draw(rawMask)
 	love.graphics.setCanvas()
 
-	for epoch = math.ceil(env.settings.blurStrength * env.intersect), 1, -1 do
+	for epoch = math.ceil(env.settings.blurStrength * math.sqrt(env.intersect ^ 2 + env.h ^ 2)), 1, -1 do
 		local size = math.sqrt(epoch)
 		for i = 1, 2 do
 			love.graphics.push("all")
 			love.graphics.setCanvas(canvas2)
 			love.graphics.setShader(env.shaders.blur)
+			env.shaders.blur:send("contrast", env.contrastCanvas)
 			env.shaders.blur:send("dir", i % 2 == 0 and { size / env.intersect, 0 } or { 0, size / env.h })
 			love.graphics.setBlendMode("replace")
 			love.graphics.draw(canvas1)

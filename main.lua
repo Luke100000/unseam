@@ -13,6 +13,7 @@ local shaders = {
 	blur = love.graphics.newShader("shaders/blur.glsl"),
 	step = love.graphics.newShader("shaders/step.glsl"),
 	preMerge = love.graphics.newShader("shaders/preMerge.glsl"),
+	contrast = love.graphics.newShader("shaders/contrast.glsl"),
 }
 
 local upcastImage = require("modules/upcastImage")
@@ -24,6 +25,7 @@ local brightnessCorrection = require("modules/brightnessCorrection")
 local downCast = require("modules/downCast")
 local combine = require("modules/combine")
 local flip = require("modules/flip")
+local generateContrast = require("modules/generateContrast")
 
 local function process(settings)
 	local env = { shaders = shaders, settings = settings }
@@ -41,6 +43,9 @@ local function process(settings)
 
 		--create shifted source image
 		createWorkspace(env)
+
+		--create contrast map for blurring
+		generateContrast(env)
 
 		--generate blend mask
 		generateMask(env)
@@ -66,12 +71,14 @@ local function process(settings)
 end
 
 process({
-	path = "examples/1.jpg",
+	path = "examples/2.jpg",
 	blurStrength = 0.025,
+	dynamicBlur = true,
 	scaleToNextN2 = false,
 	outputSquare = false,
 	minOverlap = 0.125,
 	overlap = 0.125,
 	poisson = 30,
+	contrastResolution = 128,
 })
 os.exit()
